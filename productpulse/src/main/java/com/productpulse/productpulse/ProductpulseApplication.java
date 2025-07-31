@@ -10,7 +10,6 @@ public class ProductpulseApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ProductpulseApplication.class, args);
-		
 	}
 
 }
