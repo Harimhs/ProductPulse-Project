@@ -23,4 +23,9 @@ public class TestController {
     public String login(@RequestBody Users user) {
         return service.verify(user);
     }
+
+    @GetMapping("/")
+    public String home() {
+        return "You are Authenticated!";
+    }
 }
