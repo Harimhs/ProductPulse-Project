@@ -19,8 +19,8 @@ public class TestController {
         return service.register(user);
     }
 
-    @GetMapping("/")
-    public String greet() {
-        return "You are authenticated!";
+    @PostMapping("/login")
+    public String login(@RequestBody Users user) {
+        return service.verify(user);
     }
 }

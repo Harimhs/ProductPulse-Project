@@ -18,4 +18,8 @@ public class UserService {
         user.setPassword(bcode.encode(user.getPassword()));
         return repo.save(user);
     }
+
+    public String verify(Users user) {
+
+    }
 }
