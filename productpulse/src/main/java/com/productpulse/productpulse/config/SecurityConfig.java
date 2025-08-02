@@ -19,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -27,23 +28,33 @@ public class SecurityConfig {
 	@Autowired
 	private UserDetailsService userDetailsService;
 
+	@Autowired
+	private JWTFilter JWTFilter;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-				.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/register", "/login").permitAll()
-						.anyRequest().authenticated()
-				)
-				.formLogin(form -> form
-						.defaultSuccessUrl("/", true) //
+		return http
+				.csrf(customizer -> customizer.disable())
+				.authorizeHttpRequests(request -> request
+						.requestMatchers("/register", "/login")
 						.permitAll()
-				)
-				.sessionManagement(session -> session
-						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-				);
+//						.requestMatchers("/**").authenticated()
+						.anyRequest().authenticated())
+				.httpBasic(Customizer.withDefaults())
+				.sessionManagement(session ->
+						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
+				.build();
+//				)
+//				.formLogin(form -> form
+//						.defaultSuccessUrl("/", true) //
+//						.permitAll()
+//				)
+//				.sessionManagement(session -> session
+//						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+//				);
 
-		return http.build();
+//		return http.build();
 	}
 
 
