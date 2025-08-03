@@ -20,6 +20,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebSecurity
 @Configuration
@@ -34,28 +36,22 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
-				.csrf(customizer -> customizer.disable())
-				.authorizeHttpRequests(request -> request
-						.requestMatchers("/register", "/login")
-						.permitAll()
-//						.requestMatchers("/**").authenticated()
-						.anyRequest().authenticated())
-				.httpBasic(Customizer.withDefaults())
+				.cors(Customizer.withDefaults()) // Add this line
+				.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/register", "/login").permitAll()
+						.anyRequest().authenticated()
+				)
+				.httpBasic(httpBasic -> httpBasic.disable())
+				.formLogin(form -> form.disable())
+				.logout(logout -> logout.disable())
 				.sessionManagement(session ->
-						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				)
 				.addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
-//				)
-//				.formLogin(form -> form
-//						.defaultSuccessUrl("/", true) //
-//						.permitAll()
-//				)
-//				.sessionManagement(session -> session
-//						.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-//				);
-
-//		return http.build();
 	}
+
 
 
 //	@Bean
@@ -80,5 +76,7 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 		return config.getAuthenticationManager();
 	}
+
+
 
 }
