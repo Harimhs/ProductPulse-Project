@@ -1,13 +1,18 @@
-import { useState } from 'react'
-import './App.css'
-import Login from '/pages/login.jsx'
-import Register from '/pages/register.jsx'
+import Login from "../pages/login"
+import Register from "../pages/register"
+import Home from "../pages/home"
+import { Route, Routes } from "react-router-dom"
+import "./App.css"
 
 function App() {
+
   return (
     <>
-      <Login />
-      <Register />
+    <Routes>
+      <Route path="/" element= {<Login />} />
+      <Route path="/home" element= {<Home />} />
+      <Route path="/register" element= {<Register />} />
+    </Routes>
     </>
   )
 }

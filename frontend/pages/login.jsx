@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [triggerSubmit, setTriggerSubmit] = useState(false);
@@ -18,16 +20,23 @@ function Login() {
     const userDetails = { username, password };
 
     fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(userDetails)
-    })
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include' // Optional: only if needed for cookies/sessions
+        })
+
       .then((response) => {
-        if (!response.ok) throw new Error('Login failed');
+        if (!response.ok){
+             throw new Error('Login failed');
+        }else{
+            navigate('/home');
+        }
         return response.json();
-      })
+      }
+    )
       .then((data) => {
         console.log('Login success:', data);
         // Optional: handle token, redirection, etc.
