@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
@@ -19,28 +19,24 @@ function Login() {
 
     const userDetails = { username, password };
 
-    fetch('http://localhost:8080/login', {
+    fetch('http://localhost:8080/api/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username, password }),
-        credentials: 'include' // Optional: only if needed for cookies/sessions
+        credentials: 'include' 
         })
 
-      .then((response) => {
-        if (!response.ok){
-             throw new Error('Login failed');
-        }else{
-            navigate('/home');
-        }
-        return response.json();
-      }
-    )
-      .then((data) => {
-        console.log('Login success:', data);
-        // Optional: handle token, redirection, etc.
-      })
+      .then(response => {
+      if (!response.ok) throw new Error('Login failed');
+      return response.json();
+    })
+      .then(data => {
+      console.log("Response data:", data);
+      localStorage.setItem("authToken", data.token);
+      navigate('/home');
+    })
       .catch((error) => {
         console.error('Error:', error.message);
       })
