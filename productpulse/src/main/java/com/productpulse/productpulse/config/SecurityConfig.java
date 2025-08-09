@@ -39,8 +39,7 @@ public class SecurityConfig {
 				.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/register", "/api/login").permitAll()
-						.anyRequest().authenticated()
+						.anyRequest().permitAll()
 				)
 				.httpBasic(httpBasic -> httpBasic.disable())
 				.formLogin(form -> form.disable())
@@ -51,18 +50,6 @@ public class SecurityConfig {
 				.addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
-
-
-
-//	@Bean
-//	public UserDetailsService userDetailsService(){
-//		UserDetails user1 = User
-//				.withDefaultPasswordEncoder()
-//				.username("TEST")
-//				.password("TEST")
-//				.build();
-//		return new InMemoryUserDetailsManager(user1);
-//	}
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {

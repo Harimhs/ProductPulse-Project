@@ -17,13 +17,13 @@ public class MyUserDetailsService implements UserDetailsService {
     private UserRepo repo;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users user= repo.findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Users user= repo.findByUsername(email);
         if(user==null){
             throw new UsernameNotFoundException("User not Found!");
         }
         System.out.println("LOGIN PASSWORD FROM DB: " + user.getPassword());
-        System.out.println("Loaded user: " + user.getUsername() + " with password: " + user.getPassword());
+        System.out.println("Loaded user: " + user.getEmail() + " with password: " + user.getPassword());
         return new UserPrincipal(user);
     }
 }

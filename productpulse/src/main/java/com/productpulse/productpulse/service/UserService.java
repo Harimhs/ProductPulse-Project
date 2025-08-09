@@ -30,9 +30,9 @@ public class UserService {
 
     public String verify(Users user) {
         Authentication authentication =
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if(authentication.isAuthenticated())
-            return JWTService.generateToken(user.getUsername());
+            return JWTService.generateToken(user.getEmail());
         else return "Authentication Failed!";
     }
 }

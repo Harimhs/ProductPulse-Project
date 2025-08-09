@@ -1,17 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getToken, isTokenExpired, logout } from "../src/authUtils";
-import { useNavigate } from "react-router-dom";
 
 function Home() {
 
-  const navigate = useNavigate();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(()=> {
     const token = getToken();
-    if(!token||isTokenExpired(token)){
-      navigate('/');
+    if (!token || isTokenExpired(token)) {
+      logout();
+    } else {
+      setIsChecking(false); 
     }
-  }, [])
+  }, []);
+
+  if (isChecking) {
+    return null; 
+  }
+
 
   return (
     <div style={{ maxWidth: '890px', margin: '100px auto' }}>

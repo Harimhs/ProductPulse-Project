@@ -4,10 +4,58 @@ function Register() {
   const [userDetails, setUserDetails] = useState({
     username: '',
     password: '',
+    confirmPassword: '',
+    email: '',
     company_name: ''
   });
 
+  const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+
+  const validate = () => {
+    const newErrors = {};
+
+    // Username validation
+    if (userDetails.username.length < 5 || userDetails.username.length > 50) {
+      newErrors.username = 'Username must be 5 to 50 characters long';
+    }
+
+    // Password strength
+    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+    if (!strongRegex.test(userDetails.password)) {
+      newErrors.password = 'Password must be 6+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char';
+    }
+
+    // Confirm password
+    if (userDetails.password !== userDetails.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(userDetails.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+
+    // Company name
+    if (!userDetails.company_name.trim()) {
+      newErrors.company_name = 'Company name required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  useEffect(() => {
+  if (resendCooldown > 0) {
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }
+}, [resendCooldown]);
 
   const handleChange = (e) => {
     setUserDetails({
@@ -18,7 +66,9 @@ function Register() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(true); // Trigger useEffect
+    if (validate()) {
+      setSubmitted(true);
+    }
   };
 
   useEffect(() => {
@@ -33,56 +83,92 @@ function Register() {
             body: JSON.stringify(userDetails)
           });
 
-          const data = await response.json();
+          const data = await response.text();
           console.log('Registration successful:', data);
+          setOtpSent(true);
         } catch (error) {
           console.error('Error during registration:', error);
         }
       };
 
       sendData();
-      setSubmitted(false); // Reset trigger
+      setSubmitted(false);
     }
-  }, [submitted, userDetails]);
+  }, [submitted]);
+
+  const handleOtpVerify = async () => {
+  try {
+    const response = await fetch(`http://localhost:8080/verify-otp?email=${userDetails.email}&otp=${otp}`, {
+      method: 'POST'
+    });
+
+    if (response.ok) {
+      const data = await response.text();
+      alert(data);
+    } else {
+      const errorText = await response.text();
+      alert(errorText);
+    }
+  } catch (error) {
+    console.error('OTP verification failed:', error);
+    alert('An error occurred during OTP verification.');
+  }
+};
+const handleResendOtp = async () => {
+  try {
+    const response = await fetch(`http://localhost:8080/resend-otp?email=${userDetails.email}`, {
+      method: 'POST'
+    });
+
+    const text = await response.text();
+    alert(text);
+    setResendCooldown(60); 
+  } catch (error) {
+    console.error('Failed to resend OTP:', error);
+    alert('Something went wrong. Please try again.');
+  }
+};
+
 
   return (
-    <div style={{ maxWidth: '300px', margin: '100px auto' }}>
+    <div style={{ maxWidth: '400px', margin: '100px auto' }}>
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Username:</label><br />
-          <input
-            type="text"
-            name="username"
-            value={userDetails.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Password:</label><br />
-          <input
-            type="password"
-            name="password"
-            value={userDetails.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Company Name:</label><br />
-          <input
-            type="text"
-            name="company_name"
-            value={userDetails.company_name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <label>Email:</label><br />
+        <input type="email" name="email" value={userDetails.email} onChange={handleChange} required />
+        {errors.email && <div style={{ color: 'red' }}>{errors.email}</div>}<br />
+
+        <label>Username:</label><br />
+        <input type="text" name="username" value={userDetails.username} onChange={handleChange} required />
+        {errors.username && <div style={{ color: 'red' }}>{errors.username}</div>}<br />
+
+        <label>Password:</label><br />
+        <input type="password" name="password" value={userDetails.password} onChange={handleChange} required />
+        {errors.password && <div style={{ color: 'red' }}>{errors.password}</div>}<br />
+
+        <label>Confirm Password:</label><br />
+        <input type="password" name="confirmPassword" value={userDetails.confirmPassword} onChange={handleChange} required />
+        {errors.confirmPassword && <div style={{ color: 'red' }}>{errors.confirmPassword}</div>}<br />
+
+        <label>Company Name:</label><br />
+        <input type="text" name="company_name" value={userDetails.company_name} onChange={handleChange} required />
+        {errors.company_name && <div style={{ color: 'red' }}>{errors.company_name}</div>}<br />
+
         <button type="submit">Register</button>
       </form>
+
+      {otpSent && (
+        <form onSubmit={handleOtpVerify}>
+          <h4>Enter OTP sent to email</h4>
+          <input type="text" value={otp} onChange={(e) => setOtp(e.target.value)} required />
+          <button type="submit">Verify OTP</button>
+          <button type="button" onClick={handleResendOtp} disabled={resendCooldown > 0}>
+            {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend OTP'}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
 
-export default Register;
+export default Register;
