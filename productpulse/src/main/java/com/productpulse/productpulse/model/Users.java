@@ -30,8 +30,11 @@ public class Users {
     private String otp;
     private LocalDateTime otpGeneratedAt;
     private int otpAttempts;
-    private LocalDateTime otpBlockedUntil;
+    private LocalDateTime otpBlockedUntil; 
     private int otpResendCount;
+    @NotBlank(message = "Company name is required")
+    private String company_name;
+
 
     public int getOtpResendCount() {
         return otpResendCount;
@@ -93,8 +96,6 @@ public class Users {
 
     private boolean verified;
 
-    @NotBlank(message = "Company name is required")
-    private String company_name;
 
     public int getId() {
         return id;
