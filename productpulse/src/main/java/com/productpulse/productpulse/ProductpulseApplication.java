@@ -10,8 +10,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class ProductpulseApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
-		SpringApplication.run(ProductpulseApplication.class, args);
-	}
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("spring.mail.username", dotenv.get("SMTP_USERNAME"));
+        System.setProperty("spring.mail.password", dotenv.get("SMTP_PASSWORD"));
+        SpringApplication.run(ProductpulseApplication.class, args);
+
+    }
 
 }

@@ -32,7 +32,7 @@ public class TestController {
                 return ResponseEntity.badRequest().body("Email already registered. Please verify or login.");
 
             String otp = otpService.generateOtp();
-            user.setOtp(otp);
+            user.setOtpHash(otp);
             user.setVerified(false);
             user.setOtpGeneratedAt(LocalDateTime.now());
             user.setOtpAttempts(0);
@@ -60,7 +60,7 @@ public class TestController {
 
     @PostMapping("/api/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Users user) {
-        String token = service.verify(user); // Assuming it returns the token
+        String token = service.verify(user);
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
         return ResponseEntity.ok(response);
@@ -90,7 +90,7 @@ public class TestController {
         }
 
         // WRONG OTP
-        if (!otp.equals(user.getOtp())) {
+        if (!otp.equals(user.getOtpHash())) {
             user.setOtpAttempts(user.getOtpAttempts() + 1);
 
             if (user.getOtpAttempts() >= 5) {
@@ -105,7 +105,7 @@ public class TestController {
 
         // CORRECT OTP
         user.setVerified(true);
-        user.setOtp(null);
+        user.setOtpHash(null);
         user.setOtpAttempts(0);
         user.setOtpBlockedUntil(null);
         userRepo.save(user);
@@ -133,7 +133,7 @@ public class TestController {
         }
 
         String newOtp = otpService.generateOtp();
-        user.setOtp(newOtp);
+        user.setOtpHash(newOtp);
         user.setOtpAttempts(0);
         user.setOtpResendCount(user.getOtpResendCount() + 1);
         user.setLastOtpSentAt(LocalDateTime.now());
@@ -142,12 +142,5 @@ public class TestController {
         otpService.sendOtpEmail(user.getEmail(), newOtp);
         return ResponseEntity.ok("New OTP sent.");
     }
-
-//    @GetMapping("/test-mail")
-//    public String testMail() {
-//        otpService.sendOtpEmail("mghariharasudhan@gmail.com", "123456");
-//        return "done";
-//    }
-
-
+    
 }

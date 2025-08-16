@@ -1,141 +1,106 @@
 package com.productpulse.productpulse.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 public class Users {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @NotBlank(message = "Username is required")
     @Size(min = 6, max = 50, message = "Username must be between 6 and 50 characters")
+    @Column(nullable = false, length = 50)
     private String username;
 
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
+    @Column(nullable = false)
     private String password;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    @Column(unique = true)
-    private String email;
-    private String otp;
-    private LocalDateTime otpGeneratedAt;
-    private int otpAttempts;
-    private LocalDateTime otpBlockedUntil; 
-    private int otpResendCount;
-    @NotBlank(message = "Company name is required")
-    private String company_name;
-
-
-    public int getOtpResendCount() {
-        return otpResendCount;
-    }
-
-    public void setOtpResendCount(int otpResendCount) {
-        this.otpResendCount = otpResendCount;
-    }
-
-    public LocalDateTime getLastOtpSentAt() {
-        return lastOtpSentAt;
-    }
-
-    public void setLastOtpSentAt(LocalDateTime lastOtpSentAt) {
-        this.lastOtpSentAt = lastOtpSentAt;
-    }
-
-    private LocalDateTime lastOtpSentAt;
-
-    public LocalDateTime getOtpGeneratedAt() {
-        return otpGeneratedAt;
-    }
-
-    public void setOtpGeneratedAt(LocalDateTime otpGeneratedAt) {
-        this.otpGeneratedAt = otpGeneratedAt;
-    }
-
-    public int getOtpAttempts() {
-        return otpAttempts;
-    }
-
-    public void setOtpAttempts(int otpAttempts) {
-        this.otpAttempts = otpAttempts;
-    }
-
-    public LocalDateTime getOtpBlockedUntil() {
-        return otpBlockedUntil;
-    }
-
-    public void setOtpBlockedUntil(LocalDateTime otpBlockedUntil) {
-        this.otpBlockedUntil = otpBlockedUntil;
-    }
-
-    public String getOtp() {
-        return otp;
-    }
-
-    public void setOtp(String otp) {
-        this.otp = otp;
-    }
-
-    public boolean isVerified() {
-        return verified;
-    }
-
-    public void setVerified(boolean verified) {
-        this.verified = verified;
-    }
+    @Column(name = "otp_hash")
+    private String otpHash;
 
     private boolean verified;
 
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    public int getId() {
-        return id;
-    }
+    @Column(name = "otp_attempts", nullable = false)
+    private int otpAttempts;
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    @Column(name = "otp_generated_at")
+    private LocalDateTime otpGeneratedAt;
 
-    public String getUsername() {
-        return username;
-    }
+    @Column(name = "otp_blocked_until")
+    private LocalDateTime otpBlockedUntil;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    @Column(name = "last_otp_sent_at")
+    private LocalDateTime lastOtpSentAt;
 
-    public String getPassword() {
-        return password;
-    }
+    @Column(name = "otp_resend_count", nullable = false)
+    private int otpResendCount;
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    @Column(name = "company_id")
+    private Long companyId;
 
-    public String getEmail() {
-        return email;
-    }
+    @Column(length = 50)
+    private String role;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    @Column(name = "created_at", updatable = false, insertable = false)
+    private LocalDateTime createdAt;
 
-    public String getCompany_name() {
-        return company_name;
-    }
+    // Getters and setters...
 
-    public void setCompany_name(String company_name) {
-        this.company_name = company_name;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getOtpHash() { return otpHash; }
+    public void setOtpHash(String otpHash) { this.otpHash = otpHash; }
+
+    public boolean isVerified() { return verified; }
+    public void setVerified(boolean verified) { this.verified = verified; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public int getOtpAttempts() { return otpAttempts; }
+    public void setOtpAttempts(int otpAttempts) { this.otpAttempts = otpAttempts; }
+
+    public LocalDateTime getOtpGeneratedAt() { return otpGeneratedAt; }
+    public void setOtpGeneratedAt(LocalDateTime otpGeneratedAt) { this.otpGeneratedAt = otpGeneratedAt; }
+
+    public LocalDateTime getOtpBlockedUntil() { return otpBlockedUntil; }
+    public void setOtpBlockedUntil(LocalDateTime otpBlockedUntil) { this.otpBlockedUntil = otpBlockedUntil; }
+
+    public LocalDateTime getLastOtpSentAt() { return lastOtpSentAt; }
+    public void setLastOtpSentAt(LocalDateTime lastOtpSentAt) { this.lastOtpSentAt = lastOtpSentAt; }
+
+    public int getOtpResendCount() { return otpResendCount; }
+    public void setOtpResendCount(int otpResendCount) { this.otpResendCount = otpResendCount; }
+
+    public Long getCompanyId() { return companyId; }
+    public void setCompanyId(Long companyId) { this.companyId = companyId; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     @Override
     public String toString() {
@@ -144,7 +109,8 @@ public class Users {
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", verified=" + verified +
+                ", role='" + role + '\'' +
+                ", companyId=" + companyId +
                 '}';
     }
-
 }

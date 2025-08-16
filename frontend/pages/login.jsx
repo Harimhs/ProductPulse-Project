@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [triggerSubmit, setTriggerSubmit] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Username:', username);
+    console.log('Username:', email);
     console.log('Password:', password);
     setTriggerSubmit(true);
   };
@@ -17,14 +17,14 @@ function Login() {
   useEffect(() => {
     if (!triggerSubmit) return;
 
-    const userDetails = { username, password };
+    const userDetails = { email, password };
 
     fetch('http://localhost:8080/api/login', {
-        method: 'POST',
+        method: 'POST', 
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
         credentials: 'include' 
         })
 
@@ -51,8 +51,8 @@ function Login() {
           <label>Username:</label><br />
           <input
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>

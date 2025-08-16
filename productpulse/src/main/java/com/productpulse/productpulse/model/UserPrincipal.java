@@ -29,8 +29,8 @@ public class UserPrincipal implements UserDetails {
         return user.getUsername();
     }
 
-    public String getCompany_name(){
-        return user.getCompany_name();
+    public long getCompanyId(){
+        return user.getCompanyId();
     }
 
     @Override
