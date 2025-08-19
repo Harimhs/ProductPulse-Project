@@ -77,7 +77,7 @@ public class Users {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-
+    
     public int getOtpAttempts() { return otpAttempts; }
     public void setOtpAttempts(int otpAttempts) { this.otpAttempts = otpAttempts; }
 

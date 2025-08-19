@@ -84,12 +84,10 @@ public class TestController {
             return ResponseEntity.status(401).body("OTP expired. Please request a new one.");
         }
 
-        // BLOCK CHECK
         if (user.getOtpBlockedUntil() != null && user.getOtpBlockedUntil().isAfter(LocalDateTime.now())) {
             return ResponseEntity.status(429).body("Too many attempts. Try after " + user.getOtpBlockedUntil());
         }
 
-        // WRONG OTP
         if (!otp.equals(user.getOtpHash())) {
             user.setOtpAttempts(user.getOtpAttempts() + 1);
 
@@ -103,7 +101,6 @@ public class TestController {
             return ResponseEntity.status(401).body("Invalid OTP. Attempts left: " + (5 - user.getOtpAttempts()));
         }
 
-        // CORRECT OTP
         user.setVerified(true);
         user.setOtpHash(null);
         user.setOtpAttempts(0);
@@ -142,5 +139,5 @@ public class TestController {
         otpService.sendOtpEmail(user.getEmail(), newOtp);
         return ResponseEntity.ok("New OTP sent.");
     }
-    
+
 }

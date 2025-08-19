@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
+  const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
     username: '',
     password: '',
     confirmPassword: '',
     email: '',
-    company_name: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -14,7 +15,6 @@ function Register() {
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
-
 
   const validate = () => {
     const newErrors = {};
@@ -39,11 +39,6 @@ function Register() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(userDetails.email)) {
       newErrors.email = 'Invalid email format';
-    }
-
-    // Company name
-    if (!userDetails.company_name.trim()) {
-      newErrors.company_name = 'Company name required';
     }
 
     setErrors(newErrors);
@@ -83,11 +78,13 @@ function Register() {
             body: JSON.stringify(userDetails)
           });
 
+        
+
           const data = await response.text();
           console.log('Registration successful:', data);
           setOtpSent(true);
         } catch (error) {
-          console.error('Error during registration:', error);
+          setErrors('Error during registration:', error);
         }
       };
 
@@ -96,7 +93,8 @@ function Register() {
     }
   }, [submitted]);
 
-  const handleOtpVerify = async () => {
+  const handleOtpVerify = async (e) => {
+    e.preventDefault();
   try {
     const response = await fetch(`http://localhost:8080/verify-otp?email=${userDetails.email}&otp=${otp}`, {
       method: 'POST'
@@ -105,6 +103,7 @@ function Register() {
     if (response.ok) {
       const data = await response.text();
       alert(data);
+      navigate("/register/create-company"); 
     } else {
       const errorText = await response.text();
       alert(errorText);
@@ -149,10 +148,6 @@ const handleResendOtp = async () => {
         <label>Confirm Password:</label><br />
         <input type="password" name="confirmPassword" value={userDetails.confirmPassword} onChange={handleChange} required />
         {errors.confirmPassword && <div style={{ color: 'red' }}>{errors.confirmPassword}</div>}<br />
-
-        <label>Company Name:</label><br />
-        <input type="text" name="company_name" value={userDetails.company_name} onChange={handleChange} required />
-        {errors.company_name && <div style={{ color: 'red' }}>{errors.company_name}</div>}<br />
 
         <button type="submit">Register</button>
       </form>
