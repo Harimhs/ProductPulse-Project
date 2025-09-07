@@ -19,23 +19,19 @@ function Register() {
   const validate = () => {
     const newErrors = {};
 
-    // Username validation
     if (userDetails.username.length < 5 || userDetails.username.length > 50) {
       newErrors.username = 'Username must be 5 to 50 characters long';
     }
 
-    // Password strength
     const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
     if (!strongRegex.test(userDetails.password)) {
       newErrors.password = 'Password must be 6+ chars, 1 uppercase, 1 lowercase, 1 number, 1 special char';
     }
 
-    // Confirm password
     if (userDetails.password !== userDetails.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(userDetails.email)) {
       newErrors.email = 'Invalid email format';
@@ -78,13 +74,12 @@ function Register() {
             body: JSON.stringify(userDetails)
           });
 
-        
-
-          const data = await response.text();
+          const data = await response.json();
           console.log('Registration successful:', data);
+
           setOtpSent(true);
         } catch (error) {
-          setErrors('Error during registration:', error);
+          setErrors({api:'Error during registration: '+ error.message});
         }
       };
 
@@ -99,10 +94,21 @@ function Register() {
     const response = await fetch(`http://localhost:8080/verify-otp?email=${userDetails.email}&otp=${otp}`, {
       method: 'POST'
     });
-
+    console.log("OTP verify spot:");
     if (response.ok) {
-      const data = await response.text();
-      alert(data);
+      const data = await response.json();
+      console.log("OTP verify response:", data); 
+      console.log("Token to save:", data.data);
+      if (data?.data) {
+  localStorage.setItem("authToken", data.data);
+  console.log("Saved OTP token:", data.data);
+  navigate("/register/create-company");
+} else {
+  alert("OTP verified but token missing. Please try logging in.");
+}
+
+
+      console.log("Saved token:", localStorage.getItem("authToken"));
       navigate("/register/create-company"); 
     } else {
       const errorText = await response.text();
@@ -127,7 +133,6 @@ const handleResendOtp = async () => {
     alert('Something went wrong. Please try again.');
   }
 };
-
 
   return (
     <div style={{ maxWidth: '400px', margin: '100px auto' }}>

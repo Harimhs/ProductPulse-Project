@@ -1,6 +1,8 @@
 package com.productpulse.productpulse.controller;
 
 import com.productpulse.productpulse.model.Users;
+import com.productpulse.productpulse.payload.ApiResponse;
+import com.productpulse.productpulse.service.JWTService;
 import com.productpulse.productpulse.service.OtpService;
 import com.productpulse.productpulse.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class TestController {
     @Autowired
     private OtpService otpService;
 
+    @Autowired
+    private JWTService jwtService;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Users user) {
         try {
@@ -45,14 +50,12 @@ public class TestController {
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Email could not be sent: " + e.getMessage());
             }
-
             try {
-                service.register(user); // bcrypt here
+                service.register(user);
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Failed to save user: " + e.getMessage());
             }
-
-            return ResponseEntity.ok("Registration successful. Please check your email for OTP.");
+            return ResponseEntity.ok(new ApiResponse<>("Registration successful. Please check your email for OTP.", null));
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
         }
@@ -78,9 +81,7 @@ public class TestController {
 
         Users user = optionalUser.get();
 
-        if (user == null) return ResponseEntity.badRequest().body("User not found");
-
-        if (user.getOtpGeneratedAt() == null||user.getOtpGeneratedAt().isBefore(LocalDateTime.now().minusMinutes(10))) {
+        if (user.getOtpGeneratedAt() == null || user.getOtpGeneratedAt().isBefore(LocalDateTime.now().minusMinutes(10))) {
             return ResponseEntity.status(401).body("OTP expired. Please request a new one.");
         }
 
@@ -90,13 +91,11 @@ public class TestController {
 
         if (!otp.equals(user.getOtpHash())) {
             user.setOtpAttempts(user.getOtpAttempts() + 1);
-
             if (user.getOtpAttempts() >= 5) {
                 user.setOtpBlockedUntil(LocalDateTime.now().plusMinutes(10));
                 userRepo.save(user);
                 return ResponseEntity.status(429).body("Too many attempts. Try again after 10 minutes.");
             }
-
             userRepo.save(user);
             return ResponseEntity.status(401).body("Invalid OTP. Attempts left: " + (5 - user.getOtpAttempts()));
         }
@@ -106,8 +105,13 @@ public class TestController {
         user.setOtpAttempts(0);
         user.setOtpBlockedUntil(null);
         userRepo.save(user);
-        return ResponseEntity.ok("Email verified successfully.");
+
+        String token = jwtService.generateToken(user.getEmail());
+        System.out.println("Generated token for " + user.getEmail() + ": " + token);
+        return ResponseEntity.ok(new ApiResponse<>("OTP verified, login successful!", token));
+
     }
+
 
     @PostMapping("/resend-otp")
     public ResponseEntity<?> resendOtp(@RequestParam String email) {
@@ -139,5 +143,4 @@ public class TestController {
         otpService.sendOtpEmail(user.getEmail(), newOtp);
         return ResponseEntity.ok("New OTP sent.");
     }
-
 }

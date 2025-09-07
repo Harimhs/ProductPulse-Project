@@ -1,5 +1,6 @@
 package com.productpulse.productpulse.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,14 +40,17 @@ public class SecurityConfig {
 				.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.anyRequest().permitAll()
+						.requestMatchers("/register", "/api/login", "/verify-otp", "/resend-otp","/api/enums/**").permitAll()
+						.requestMatchers("/register/company").authenticated()
+						.anyRequest().authenticated()
 				)
 				.httpBasic(httpBasic -> httpBasic.disable())
 				.formLogin(form -> form.disable())
 				.logout(logout -> logout.disable())
-				.sessionManagement(session ->
-						session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				)
+				.exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, ex2) -> {
+					res.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex2.getMessage());
+				}))
+
 				.addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}

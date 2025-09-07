@@ -10,7 +10,7 @@ export function isTokenExpired(token) {
 }
 
 export function getToken() {
-  return localStorage.getItem('authToken');
+  return localStorage.getItem("authToken") || localStorage.getItem("token");
 }
 
 export function logout() {

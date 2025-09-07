@@ -58,8 +58,6 @@ public class Users {
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
-    // Getters and setters...
-
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
