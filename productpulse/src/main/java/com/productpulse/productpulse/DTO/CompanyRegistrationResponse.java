@@ -1,5 +1,6 @@
-package com.productpulse.productpulse.model;
+package com.productpulse.productpulse.DTO;
 
+import com.productpulse.productpulse.model.Company;
 import lombok.Getter;
 
 @Getter

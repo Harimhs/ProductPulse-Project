@@ -12,6 +12,7 @@ public class ProductpulseApplication {
         Dotenv dotenv = Dotenv.load();
         System.setProperty("spring.mail.username", dotenv.get("SMTP_USERNAME"));
         System.setProperty("spring.mail.password", dotenv.get("SMTP_PASSWORD"));
+        System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY"));
         SpringApplication.run(ProductpulseApplication.class, args);
     }
 

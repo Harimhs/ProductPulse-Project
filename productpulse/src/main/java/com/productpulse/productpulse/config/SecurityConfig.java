@@ -40,9 +40,12 @@ public class SecurityConfig {
 				.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/register", "/api/login", "/verify-otp", "/resend-otp","/api/enums/**").permitAll()
+						.requestMatchers("/register", "/api/login", "/verify-otp", "/resend-otp",
+								"/api/enums/**","/api/roles/**", "/api/company/*/invites/accept",
+								"/register/invite").permitAll()
 						.requestMatchers("/register/company").authenticated()
 						.anyRequest().authenticated()
+//						.anyRequest().permitAll()
 				)
 				.httpBasic(httpBasic -> httpBasic.disable())
 				.formLogin(form -> form.disable())
@@ -67,7 +70,5 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
 		return config.getAuthenticationManager();
 	}
-
-
 
 }

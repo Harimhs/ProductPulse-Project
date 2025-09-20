@@ -36,15 +36,18 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        if (path.equals("/register")   // only allow POST /register without token
+        if (path.equals("/register")
                 || path.startsWith("/verify-otp")
+                || path.startsWith("/register/invite")
                 || path.startsWith("/resend-otp")
                 || path.startsWith("/api/enums")
-                || path.startsWith("/api/login")) {
+                || path.startsWith("/api/login")
+                || path.startsWith("/api/roles/**")
+                || path.matches("^/api/company/\\d+/invites/accept(/.*)?$")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
-
 
         String authHeader = request.getHeader("Authorization");
 

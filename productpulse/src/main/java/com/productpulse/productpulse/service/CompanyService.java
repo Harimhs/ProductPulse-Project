@@ -1,13 +1,12 @@
 package com.productpulse.productpulse.service;
 
 import com.productpulse.productpulse.model.Company;
-import com.productpulse.productpulse.model.CompanyRegistrationResponse;
+import com.productpulse.productpulse.DTO.CompanyRegistrationResponse;
 import com.productpulse.productpulse.model.UserPrincipal;
 import com.productpulse.productpulse.model.Users;
 import com.productpulse.productpulse.repo.CompanyRepo;
 import com.productpulse.productpulse.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

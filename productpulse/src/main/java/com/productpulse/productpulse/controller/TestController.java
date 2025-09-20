@@ -1,9 +1,12 @@
 package com.productpulse.productpulse.controller;
 
+import com.productpulse.productpulse.DTO.InvitePayload;
+import com.productpulse.productpulse.DTO.PartialUser;
 import com.productpulse.productpulse.model.Users;
 import com.productpulse.productpulse.payload.ApiResponse;
 import com.productpulse.productpulse.service.JWTService;
 import com.productpulse.productpulse.service.OtpService;
+import com.productpulse.productpulse.service.TeamInviteService;
 import com.productpulse.productpulse.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +32,17 @@ public class TestController {
     @Autowired
     private JWTService jwtService;
 
+    @Autowired
+    private TeamInviteController teamInviteController;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Users user) {
+
         try {
             Optional<Users> optionalUser = userRepo.findByEmail(user.getEmail());
-            if (optionalUser.isPresent())
+            if (optionalUser.isPresent()) {
                 return ResponseEntity.badRequest().body("Email already registered. Please verify or login.");
+            }
 
             String otp = otpService.generateOtp();
             user.setOtpHash(otp);
@@ -50,12 +58,56 @@ public class TestController {
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Email could not be sent: " + e.getMessage());
             }
+
             try {
                 service.register(user);
             } catch (Exception e) {
                 return ResponseEntity.status(500).body("Failed to save user: " + e.getMessage());
             }
+
             return ResponseEntity.ok(new ApiResponse<>("Registration successful. Please check your email for OTP.", null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/register/invite")
+    public ResponseEntity<?> registerInvited(@RequestBody Users user){
+        try {
+            ResponseEntity<?> response = teamInviteController.acceptInvite(user.getInviteToken());
+            if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+                return ResponseEntity.badRequest().body("Invite not valid");
+            }
+
+            PartialUser inviteUserData= (PartialUser) response.getBody();
+
+            user.setCompanyId(inviteUserData.getCompanyId());
+            user.setRole(inviteUserData.getRole());
+            user.setEmail(inviteUserData.getEmail());
+
+            try {
+                Optional<Users> optionalUser = userRepo.findByEmail(user.getEmail());
+                if (optionalUser.isPresent()) {
+                    return ResponseEntity.badRequest().body("Email already registered. Please verify or login.");
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Failed to save user: " + e.getMessage());
+            }
+
+            try {
+                service.register(user);
+                } catch (Exception e) {
+                    return ResponseEntity.status(500).body("Failed to save user: " + e.getMessage());
+                }
+
+                user.setVerified(true);
+                userRepo.save(user);
+
+                String token = jwtService.generateToken(user.getEmail());
+                System.out.println("Generated token for " + user.getEmail() + ": " + token);
+
+            return ResponseEntity.ok(new ApiResponse<>("Registration successful for invited user.", token));
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Unexpected error: " + e.getMessage());
         }
@@ -111,7 +163,6 @@ public class TestController {
         return ResponseEntity.ok(new ApiResponse<>("OTP verified, login successful!", token));
 
     }
-
 
     @PostMapping("/resend-otp")
     public ResponseEntity<?> resendOtp(@RequestParam String email) {

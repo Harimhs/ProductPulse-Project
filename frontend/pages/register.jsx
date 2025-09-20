@@ -71,7 +71,10 @@ function Register() {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify(userDetails)
+            body: JSON.stringify({
+              ...userDetails,
+            })
+
           });
 
           const data = await response.json();
@@ -100,14 +103,12 @@ function Register() {
       console.log("OTP verify response:", data); 
       console.log("Token to save:", data.data);
       if (data?.data) {
-  localStorage.setItem("authToken", data.data);
-  console.log("Saved OTP token:", data.data);
-  navigate("/register/create-company");
-} else {
-  alert("OTP verified but token missing. Please try logging in.");
-}
-
-
+      localStorage.setItem("authToken", data.data);
+      console.log("Saved OTP token:", data.data);
+      navigate("/register/create-company");
+    } else {
+      alert("OTP verified but token missing. Please try logging in.");
+    }
       console.log("Saved token:", localStorage.getItem("authToken"));
       navigate("/register/create-company"); 
     } else {
@@ -138,9 +139,11 @@ const handleResendOtp = async () => {
     <div style={{ maxWidth: '400px', margin: '100px auto' }}>
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
+      
         <label>Email:</label><br />
         <input type="email" name="email" value={userDetails.email} onChange={handleChange} required />
         {errors.email && <div style={{ color: 'red' }}>{errors.email}</div>}<br />
+       
 
         <label>Username:</label><br />
         <input type="text" name="username" value={userDetails.username} onChange={handleChange} required />

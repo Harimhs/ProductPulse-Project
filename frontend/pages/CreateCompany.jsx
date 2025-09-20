@@ -49,32 +49,37 @@ function CreateCompany() {
         return;
       }
 
-      const response = await fetch('http://localhost:8080/register/company', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(companyDetails),
-      });
+    const response = await fetch('http://localhost:8080/register/company', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(companyDetails),
+    });
 
-      if (response.status === 401 || response.status === 403) {
-        logout();
-        return;
-      }
+    if (response.status === 401 || response.status === 403) {
+      logout();
+      return;
+    }
 
-      let data = null;
+      let responseData = null;
       if (response.headers.get("content-type")?.includes("application/json")) {
-        data = await response.json();
+        responseData = await response.json();
       }
-            
-     if (data?.token) {
-  localStorage.setItem("authToken", data.token);
-  console.log("New ADMIN token saved:", data.token);
-}
 
-      console.log('Company Registration successful:', data || 'No JSON returned');
-      navigate("/home");
+      console.log("Company Registration response:", responseData);
+
+      if (responseData?.token) {
+        localStorage.setItem("authToken", responseData.token);
+        console.log("New ADMIN token saved:", responseData.token);
+      }
+      if (response.ok && responseData?.data?.companyId) {
+        navigate(`/company/${responseData.data.companyId}/invites`);
+      } else {
+        console.error("Company registration failed:", responseData?.message);
+        setErrors(responseData?.message || "Unknown error");
+      }
 
       } catch (error) {
         setErrors(error.message);

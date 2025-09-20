@@ -1,7 +1,7 @@
 package com.productpulse.productpulse.controller;
 
 import com.productpulse.productpulse.model.Company;
-import com.productpulse.productpulse.model.CompanyRegistrationResponse;
+import com.productpulse.productpulse.DTO.CompanyRegistrationResponse;
 import com.productpulse.productpulse.model.Industry;
 import com.productpulse.productpulse.payload.ApiResponse;
 import com.productpulse.productpulse.repo.CompanyRepo;
@@ -32,14 +32,15 @@ public class CompanyController {
         String email = auth.getName();
         try {
             CompanyRegistrationResponse response = service.registerCompany(company, email);
-            return ResponseEntity.ok(new ApiResponse<>("Company registered successfully!", response));
+            return ResponseEntity.ok(Map.of(
+                    "data", Map.of("companyId", company.getId())
+            ));
+
         } catch (CompanyAlreadyExistsException e) {
             return ResponseEntity.status(409)
                     .body(new ApiResponse<>("Failed to save company: " + e.getMessage(), null));
         }
     }
-
-
 
     @RestController
     public class EnumController {

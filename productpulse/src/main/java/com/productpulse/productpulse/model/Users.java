@@ -58,6 +58,17 @@ public class Users {
     @Column(name = "created_at", updatable = false, insertable = false)
     private LocalDateTime createdAt;
 
+    @Transient
+    private String inviteToken;
+
+    public String getInviteToken() {
+        return inviteToken;
+    }
+
+    public void setInviteToken(String inviteToken) {
+        this.inviteToken = inviteToken;
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
