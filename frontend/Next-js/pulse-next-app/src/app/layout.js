@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./styles/globals.scss"; 
 
 export const metadata = {
-  title: "My App",
+  title: "Product Pulse",
   description: "Next.js App Router ",
 };
 

@@ -9,7 +9,6 @@ function TeamInvite() {
   const [suggestions, setSuggestions] = useState([]);
   const [message, setMessage] = useState(null);
 
-
   const fetchRoles = async (query) => {
     if (!query) {
       setSuggestions([]);
