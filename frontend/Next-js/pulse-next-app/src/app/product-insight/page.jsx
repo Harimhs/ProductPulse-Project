@@ -21,6 +21,7 @@ export default function ProductInsightPage(){
                  <button> search the product insights</button>
                </form>               
            </div>
+           
        </div>
      </>
     )
