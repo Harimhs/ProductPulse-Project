@@ -42,7 +42,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/register", "/api/login", "/verify-otp", "/resend-otp",
 								"/api/enums/**","/api/roles/**", "/api/company/*/invites/accept",
-								"/register/invite").permitAll()
+								"/register/invite","/api/product/**").permitAll()
 						.requestMatchers("/register/company").authenticated()
 						.anyRequest().authenticated()
 //						.anyRequest().permitAll()
