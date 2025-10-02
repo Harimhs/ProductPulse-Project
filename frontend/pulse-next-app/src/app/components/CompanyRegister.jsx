@@ -53,7 +53,8 @@ export default function CreateCompanyForm() {
 
         const data = await res.json();
         console.log("Company registration successful:", data);
-        router.push("/home");
+        console.log(data.data.companyId);
+        router.push(`/company/${data.data.companyId}/invites`);
       } catch (err) {
         setErrors(err.message);
       } finally {

@@ -59,7 +59,7 @@ public class TeamInviteService {
 
         TeamInvite savedInvite = teamInviteRepo.save(teamInvite);
 
-        return "http://localhost:5173/company/"+companyId+"/invites/accept?token=" + inviteToken;
+        return "http://localhost:3000/company/"+companyId+"/invites/accept?token=" + inviteToken;
 
     }
 

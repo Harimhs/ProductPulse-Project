@@ -29,7 +29,7 @@ export async function POST(req){
     }
     catch(err){
        return NextResponse.json(
-        {error: err || "This is not working because of stuipd backend"},
+        {error: err || "Check your details are within criteria and try again!"},
         {status: 500}
        )
 

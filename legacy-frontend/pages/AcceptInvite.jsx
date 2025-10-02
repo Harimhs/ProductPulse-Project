@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import Register from "./register";
 
 function AcceptInvite() {
   const { companyId } = useParams();
@@ -108,7 +107,7 @@ function AcceptInvite() {
                 navigate("/home");
               }
             else{
-              alert("User Registratio completed! Please try logging in.");
+              alert("User Registration completed! Please try logging in.");
             }
 
             console.log("Saved token:", localStorage.getItem("authToken"));
