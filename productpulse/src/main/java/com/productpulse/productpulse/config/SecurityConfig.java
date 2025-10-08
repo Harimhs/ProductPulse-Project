@@ -21,7 +21,6 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebSecurity
@@ -34,15 +33,28 @@ public class SecurityConfig {
 	@Autowired
 	private JWTFilter JWTFilter;
 
+    private static final String[] PUBLIC_ENDPOINTS = {
+            "/register",
+            "/api/login",
+            "/verify-otp",
+            "/resend-otp",
+            "/api/enums/**",
+            "/api/roles/**",
+            "/api/company/*/invites/accept",
+            "/register/invite",
+            "/api/register/inviteuser",
+            "/api/product/**",
+            "/actuator/caches/industryDropdownCache",
+            "/api/debug/**"
+    };
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http
 				.cors(Customizer.withDefaults())
 				.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/register", "/api/login", "/verify-otp", "/resend-otp",
-								"/api/enums/**","/api/roles/**", "/api/company/*/invites/accept",
-								"/register/invite","/api/product/**").permitAll()
+                                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
 						.requestMatchers("/register/company").authenticated()
 						.anyRequest().authenticated()
 //						.anyRequest().permitAll()
@@ -53,8 +65,8 @@ public class SecurityConfig {
 				.exceptionHandling(ex -> ex.authenticationEntryPoint((req, res, ex2) -> {
 					res.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex2.getMessage());
 				}))
-
-				.addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
+                .requestCache(requestCache -> requestCache.disable())
+                .addFilterBefore(JWTFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 

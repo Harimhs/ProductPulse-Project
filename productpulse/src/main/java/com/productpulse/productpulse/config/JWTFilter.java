@@ -37,13 +37,16 @@ public class JWTFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         if (path.equals("/register")
+                || path.contains("verify-otp")
                 || path.startsWith("/verify-otp")
                 || path.startsWith("/register/invite")
                 || path.startsWith("/resend-otp")
                 || path.startsWith("/api/enums")
                 || path.startsWith("/api/login")
                 || path.startsWith("/api/roles/**")
+                || path.startsWith("/api/register/inviteuser")
                 || path.matches("^/api/company/\\d+/invites/accept(/.*)?$")
+                || path.startsWith("/api/debug")
         ) {
             filterChain.doFilter(request, response);
             return;

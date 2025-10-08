@@ -8,6 +8,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication
 @EntityScan(basePackages = "com.productpulse.productpulse.model")
 public class ProductpulseApplication {
+
 	public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
         System.setProperty("spring.mail.username", dotenv.get("SMTP_USERNAME"));

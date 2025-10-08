@@ -19,7 +19,7 @@ export async function POST(req){
             console.log("the response", response);
             return NextResponse.json(
                 {error: errorData.message || "Register Failed"},
-                {status: 404}
+                { status: response.status }
             )
           }
 

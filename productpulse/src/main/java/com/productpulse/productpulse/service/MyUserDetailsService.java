@@ -4,6 +4,7 @@ import com.productpulse.productpulse.model.UserPrincipal;
 import com.productpulse.productpulse.model.Users;
 import com.productpulse.productpulse.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,7 +23,6 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Users user = repo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not Found!"));
-        System.out.println("LOGIN PASSWORD FROM DB: " + user.getPassword());
         System.out.println("Loaded user: " + user.getEmail() + " with password: " + user.getPassword());
         return new UserPrincipal(user);
     }

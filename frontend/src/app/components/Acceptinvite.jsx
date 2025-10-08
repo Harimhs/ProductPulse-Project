@@ -53,13 +53,18 @@ export default function AcceptInviteForm({ partialUser, inviteToken }) {
       }
 
       const data = await response.json();
+      try{
       if (data?.data) {
-        localStorage.setItem("authToken", data.data);
         router.push("/home");
-      } else {
-        alert("Registration completed. Please login.");
       }
+       else {
+        alert("Registration completed. Please login.");
+      }}catch(err){
+        setErrors({ api: err.message });
+      }
+      
     } catch (err) {
+      console.log("Problem is here!")
       setErrors({ api: err.message });
     }
   };

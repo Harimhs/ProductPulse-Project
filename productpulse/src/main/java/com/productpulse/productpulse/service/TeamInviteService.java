@@ -9,12 +9,14 @@ import com.productpulse.productpulse.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class TeamInviteService {
@@ -34,7 +36,8 @@ public class TeamInviteService {
     @Autowired
     private TeamInviteRepo teamInviteRepo;
 
-    public String sendInvitation(String email, String role, String admin, Long companyId){
+    @Async
+    public CompletableFuture<String> sendInvitation(String email, String role, String admin, Long companyId){
         TeamInvite teamInvite= new TeamInvite();
         Users adminUser = userRepo.findByEmail(admin)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not Found!"));
@@ -59,11 +62,13 @@ public class TeamInviteService {
 
         TeamInvite savedInvite = teamInviteRepo.save(teamInvite);
 
-        return "http://localhost:3000/company/"+companyId+"/invites/accept?token=" + inviteToken;
+        String inviteLink = "http://localhost:3000/company/" + companyId + "/invites/accept?token=" + inviteToken;
+        return CompletableFuture.completedFuture(inviteLink);
 
     }
 
-    public boolean sendInviteEmail(String adminEmail, String toEmail, String inviteLink, Company company){
+    @Async
+    public CompletableFuture<Boolean> sendInviteEmail(String adminEmail, String toEmail, String inviteLink, Company company){
         System.out.println("Sending Invite to: " + toEmail);
         System.out.println("Invite Link is: " + inviteLink);
         System.out.println("Admin of Company: " + adminEmail);
@@ -79,9 +84,9 @@ public class TeamInviteService {
                     "This link expires in 24 hours.");
             javaMailSender.send(simpleMailMessage);
             System.out.println("Invitation sent Successfully!");
-            return true;
+            return CompletableFuture.completedFuture(true);
         }catch (Exception e){
-            return false;
+            return CompletableFuture.completedFuture(false);
         }
     }
 }

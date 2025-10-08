@@ -27,10 +27,10 @@ public class CompanyService {
     @Autowired
     private JWTService jwtService;
 
-    public CompanyRegistrationResponse registerCompany(Company company, String email) throws CompanyAlreadyExistsException {
+    public CompanyRegistrationResponse registerCompany(Company company, String email) throws CompanyExistsException {
         Optional<Company> optionalCompany = companyRepo.findByName(company.getName());
         if (optionalCompany.isPresent()) {
-            throw new CompanyAlreadyExistsException("The company name is already registered.");
+            throw new CompanyExistsException("The company name is already registered.");
         }
 
         // 1. Save the new company

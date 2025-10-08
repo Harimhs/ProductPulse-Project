@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class TeamInviteController {
@@ -37,6 +39,7 @@ public class TeamInviteController {
 
     @PostMapping("/api/company/{companyId}/invites")
     public ResponseEntity<?> SendTeamInvite(@PathVariable Long companyId, @Valid @RequestBody InviteRequestWrapper wrapper){
+        System.out.println("Hit TeamInviteController! companyId=" + companyId + ", inviteList=" + wrapper.getInviteList());
         Authentication adminAuth= SecurityContextHolder.getContext().getAuthentication();
         String adminEmail = adminAuth.getName();
 
@@ -53,6 +56,7 @@ public class TeamInviteController {
                 failed.add(Map.of("email", invite.getEmail(), "reason", e.getMessage()));
             }
         }
+        System.out.println("Invite results - Success: " + success + ", Failed: " + failed);
 
         if(success.isEmpty() && !failed.isEmpty())
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
@@ -68,18 +72,22 @@ public class TeamInviteController {
         ));
     }
 
-    public boolean processInvite(InviteRequest inviteRequest, String adminEmail, Long companyId){
-        String inviteLink= teamInviteService.sendInvitation(inviteRequest.getEmail(),
+    public boolean processInvite(InviteRequest inviteRequest, String adminEmail, Long companyId) throws ExecutionException, InterruptedException {
+        System.out.println("Hit process invite method! User: "+ inviteRequest.getEmail()+", Role: "+inviteRequest.getRole()+ " Admin: "+adminEmail+ ", companyId: "+companyId);
+        CompletableFuture<String> futureLink = teamInviteService.sendInvitation(
+                inviteRequest.getEmail(),
                 inviteRequest.getRole(),
                 adminEmail,
-                companyId);
+                companyId
+        );
+        String inviteLink = futureLink.get();
 
         Company company= companyRepo.findById(companyId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "Company not found"));
         if(teamInviteService.sendInviteEmail(adminEmail,
                 inviteRequest.getEmail(),
                 inviteLink,
-                company)){
+                company).get()){
             return true;
         }
         return false;
